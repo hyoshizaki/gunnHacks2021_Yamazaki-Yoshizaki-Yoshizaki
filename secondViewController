@@ -1,0 +1,450 @@
+//
+//  secondViewController.swift
+//  h
+//
+//  Created by Shuji Yoshizaki on 2/13/21.
+//
+
+import UIKit
+import AVFoundation
+
+class secondViewController: UIViewController {
+
+    @IBOutlet weak var baseImage: UIImageView!
+    @IBOutlet weak var firstChoice: UIImageView!
+    @IBOutlet weak var secondChoice: UIImageView!
+    @IBOutlet weak var thirdChoice: UIImageView!
+    let imagesArray = [
+        "apple",
+        "bee",
+        "car",
+        "dog",
+        "elephant",
+        "frog",
+        "godzilla",
+        "humpty",
+        "iguana",
+        "jellyfish",
+        "koala",
+        "lion",
+        "mushroom",
+        "naruto",
+        "ox",
+        "panda",
+        "question mark",
+        "rainbow",
+        "sun",
+        "totoro",
+        "udon",
+        "volcano",
+        "whale",
+        "xylophone",
+        "yoda",
+        "zebra",
+        "aligator",
+        "box",
+        "crab",
+        "dumbbell",
+        "earmuff",
+        "flower",
+        "gold",
+        "harp",
+        "island",
+        "jump",
+        "kingkong",
+        "lamb",
+        "monoply",
+        "nintendo switch",
+        "pot",
+        "rice"
+
+
+    ]
+    
+    
+    
+    
+    
+    
+    
+    var baseImageName : String!
+    var firstImageName: String!
+    var secondImageName: String!
+    var thirdImageName: String!
+    var correctImageName: String!
+    
+    var baseRandIndex : Int!
+    var firstRandIndex : Int!
+    var secondRandIndex : Int!
+    var correctImageChoiceNumber : Int!//if first choice is the right one, =1. if second choice is the right one, =2. if the third choice is the right one, =3
+    var audioPlayer = AVAudioPlayer()
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        do{
+            audioPlayer = try AVAudioPlayer(contentsOf: URL.init(fileURLWithPath: Bundle.main.path(forResource:"Ding Sound Effect (mp3cut.net)", ofType: "mp3")!))
+            audioPlayer.prepareToPlay()
+        } catch {
+            print(error)
+        }
+        
+        //next section randomizes the choices that will be displayed on the bottom
+        baseRandIndex = Int.random(in:0...41)
+        firstRandIndex = Int.random(in:0...41)
+        while  baseRandIndex == firstRandIndex{
+            firstRandIndex = Int.random(in:0...41)
+        }
+        secondRandIndex = Int.random(in:0...41)
+        while(secondRandIndex == baseRandIndex || secondRandIndex == firstRandIndex){
+            secondRandIndex = Int.random(in:0...41)
+        }
+        
+        
+        //next section initializes the name of each image (base and three choices)
+        baseImageName = imagesArray[baseRandIndex]
+        firstImageName = imagesArray[firstRandIndex]
+        secondImageName = imagesArray[secondRandIndex]
+        correctImageName = correctChoice(baseChoice: baseImageName)
+        
+        //next section randomizes the order of the three choices and actually plugs in the images into the view controller
+        var x = randomizeOrder()
+        baseImage.image = UIImage(named: baseImageName)
+        if(x==123){ //third choice is the correct answer
+            firstChoice.image = UIImage(named: firstImageName)
+            secondChoice.image = UIImage(named: secondImageName)
+            thirdChoice.image = UIImage(named: correctImageName)
+            correctImageChoiceNumber = 3
+        } else if(x==132){
+            firstChoice.image = UIImage(named: firstImageName)
+            thirdChoice.image = UIImage(named:secondImageName)
+            secondChoice.image = UIImage(named:correctImageName)
+            correctImageChoiceNumber = 2
+        } //continue with the other 4!!!!!!!!!!!!!!!!!!!!!!!!!!
+        else if(x==213){
+            secondChoice.image = UIImage(named: firstImageName)
+            firstChoice.image = UIImage(named:secondImageName)
+            thirdChoice.image = UIImage(named:correctImageName)
+            correctImageChoiceNumber = 3
+        }else if(x==231){
+            secondChoice.image = UIImage(named: firstImageName)
+            thirdChoice.image = UIImage(named:secondImageName)
+            firstChoice.image = UIImage(named:correctImageName)
+            correctImageChoiceNumber = 1
+        }else if(x==312){
+            thirdChoice.image = UIImage(named: firstImageName)
+            firstChoice.image = UIImage(named:secondImageName)
+            secondChoice.image = UIImage(named:correctImageName)
+            correctImageChoiceNumber = 2
+        }else {
+            firstChoice.image = UIImage(named: firstImageName)
+            thirdChoice.image = UIImage(named:secondImageName)
+            secondChoice.image = UIImage(named:correctImageName)
+            correctImageChoiceNumber = 1
+        }
+    
+        // Do any additional setup after loading the view.
+    }
+    
+    //just need to figure out an algorithm or method that can determine if the selected choice is the correct one. Potentially use the correctImageChoiceNumber variable that keeps track of the choice that is the correct one?
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+            for touch in (touches as! Set<UITouch>) {
+                let location = touch.location(in: self.view)
+                
+                if (firstChoice.frame.contains(location) && correctImageChoiceNumber == 1){
+                    baseImage.image = firstChoice.image
+                    setBoard(newBaseImage: correctImageName)
+                    audioPlayer.play()
+                }
+                else if (secondChoice.frame.contains(location) && correctImageChoiceNumber == 2 ){
+                    baseImage.image = secondChoice.image
+                    setBoard(newBaseImage: correctImageName)
+                    audioPlayer.play()
+                }
+                else if (thirdChoice.frame.contains(location) && correctImageChoiceNumber == 3){
+                    baseImage.image = thirdChoice.image
+                    setBoard(newBaseImage: correctImageName)
+                    audioPlayer.play()
+                }
+            }
+    }
+    //resets the board after a correct choice is chosen
+    func setBoard (newBaseImage: String){
+        correctImageName = correctChoice(baseChoice: newBaseImage)
+        var correctImageIndex = 0
+        while(imagesArray[correctImageIndex] != correctImageName){
+            correctImageIndex += 1
+        }
+        baseRandIndex = 0
+        while(imagesArray[baseRandIndex] != newBaseImage){
+            baseRandIndex += 1
+        }
+        firstRandIndex = Int.random(in:0...41)
+        while  baseRandIndex == firstRandIndex || firstRandIndex == correctImageIndex{
+            firstRandIndex = Int.random(in:0...41)
+        }
+        secondRandIndex = Int.random(in:0...41)
+        while(secondRandIndex == baseRandIndex || secondRandIndex == firstRandIndex || secondRandIndex == correctImageIndex){
+            secondRandIndex = Int.random(in:0...41)
+        }
+        
+        firstImageName = imagesArray[firstRandIndex]
+        secondImageName = imagesArray[secondRandIndex]
+        
+        var x = randomizeOrder()
+        if(x==123){
+            firstChoice.image = UIImage(named: firstImageName)
+            secondChoice.image = UIImage(named: secondImageName)
+            thirdChoice.image = UIImage(named: correctImageName)
+            correctImageChoiceNumber = 3
+        } else if(x==132){
+            firstChoice.image = UIImage(named: firstImageName)
+            thirdChoice.image = UIImage(named:secondImageName)
+            secondChoice.image = UIImage(named:correctImageName)
+            correctImageChoiceNumber = 2
+        } 
+        else if(x==213){
+            secondChoice.image = UIImage(named: firstImageName)
+            firstChoice.image = UIImage(named:secondImageName)
+            thirdChoice.image = UIImage(named:correctImageName)
+            correctImageChoiceNumber = 3
+        }else if(x==231){
+            secondChoice.image = UIImage(named: firstImageName)
+            thirdChoice.image = UIImage(named:secondImageName)
+            firstChoice.image = UIImage(named:correctImageName)
+            correctImageChoiceNumber = 1
+        }else if(x==312){
+            thirdChoice.image = UIImage(named: firstImageName)
+            firstChoice.image = UIImage(named:secondImageName)
+            secondChoice.image = UIImage(named:correctImageName)
+            correctImageChoiceNumber = 2
+        }else {
+            firstChoice.image = UIImage(named: firstImageName)
+            thirdChoice.image = UIImage(named:secondImageName)
+            secondChoice.image = UIImage(named:correctImageName)
+            correctImageChoiceNumber = 1
+        }
+    }
+    
+    //returns the name of the choice that is the correct one. For example, if the base choice is apple, the returned string should be elephant!
+    func correctChoice (baseChoice: String) -> String {
+        var endingLetter = baseChoice[baseChoice.index(before: baseChoice.endIndex)]
+        if(endingLetter == "a"){
+            var a = Int.random(in:0...1)
+            if a == 0 {
+                return imagesArray[0]
+            }
+            else{
+                return imagesArray[26]
+            }
+        } else if(endingLetter == "b"){
+            var a = Int.random(in:0...1)
+            if a == 0 {
+                return imagesArray[1]
+            }
+            else  {
+                return imagesArray[27]
+            }
+        } else if(endingLetter == "c"){
+            var a = Int.random(in:0...1)
+            if a == 0 {
+                return imagesArray[2]
+            }
+            else   {
+                return imagesArray[28]
+            }
+            return imagesArray[2]
+        }else if(endingLetter == "d"){
+            var a = Int.random(in:0...1)
+            if a == 0 {
+                return imagesArray[3]
+            }
+            else   {
+                return imagesArray[29]
+            }
+        }else if(endingLetter == "e"){
+            var a = Int.random(in:0...1)
+            if a == 0 {
+                return imagesArray[4]
+            }
+            else   {
+                return imagesArray[30]
+            }
+        }else if(endingLetter == "f"){
+            var a = Int.random(in:0...1)
+            if a == 0 {
+                return imagesArray[5]
+            }
+            else   {
+                return imagesArray[31]
+            }
+        }else if(endingLetter == "g"){
+            var a = Int.random(in:0...1)
+            if a == 0 {
+                return imagesArray[6]
+            }
+            else   {
+                return imagesArray[32]
+            }
+        }else if(endingLetter == "h"){
+            var a = Int.random(in:0...1)
+            if a == 0 {
+                return imagesArray[7]
+            }
+            else   {
+                return imagesArray[33]
+            }
+        }else if(endingLetter == "i"){
+            var a = Int.random(in:0...1)
+            if a == 0 {
+                return imagesArray[8]
+            }
+            else   {
+                return imagesArray[34]
+            }
+        }else if(endingLetter == "j"){
+            var a = Int.random(in:0...1)
+            if a == 0 {
+                return imagesArray[9]
+            }
+            else   {
+                return imagesArray[35]
+            }
+        }else if(endingLetter == "k"){
+            var a = Int.random(in:0...1)
+            if a == 0 {
+                return imagesArray[10]
+            }
+            else   {
+                return imagesArray[36]
+            }
+        }else if(endingLetter == "l"){
+            var a = Int.random(in:0...1)
+            if a == 0 {
+                return imagesArray[11]
+            }
+            else   {
+                return imagesArray[37]
+            }
+        }else if(endingLetter == "m"){
+            var a = Int.random(in:0...1)
+            if a == 0 {
+                return imagesArray[12]
+            }
+            else   {
+                return imagesArray[38]
+            }
+        }else if(endingLetter == "n"){
+            var a = Int.random(in:0...1)
+            if a == 0 {
+                return imagesArray[13]
+            }
+            else   {
+                return imagesArray[39]
+            }
+        }else if(endingLetter == "o"){
+            var a = Int.random(in:0...1)
+            if a == 0 {
+                return imagesArray[14]
+            }
+            else   {
+                return imagesArray[14]
+            }
+        }else if(endingLetter == "p"){
+            var a = Int.random(in:0...1)
+            if a == 0 {
+                return imagesArray[15]
+            }
+            else   {
+                return imagesArray[40]
+            }
+        }else if(endingLetter == "q"){
+            var a = Int.random(in:0...1)
+            if a == 0 {
+                return imagesArray[16]
+            }
+            else   {
+                return imagesArray[16]
+            }
+        }else if(endingLetter == "r"){
+            var a = Int.random(in:0...1)
+            if a == 0 {
+                return imagesArray[17]
+            }
+            else   {
+                return imagesArray[41]
+            }
+        }else if(endingLetter == "s"){
+            var a = Int.random(in:0...1)
+            if a == 0 {
+                return imagesArray[18]
+            }
+            else   {
+                return imagesArray[18]
+            }
+        }else if(endingLetter == "t"){
+            var a = Int.random(in:0...1)
+            if a == 0 {
+                return imagesArray[19]
+            }
+            else   {
+                return imagesArray[19]
+            }
+        }else if(endingLetter == "u"){
+            var a = Int.random(in:0...1)
+            if a == 0 {
+                return imagesArray[20]
+            }
+            else  {
+                return imagesArray[20]
+            }
+        }else if(endingLetter == "v"){
+            var a = Int.random(in:0...1)
+            if a == 0 {
+                return imagesArray[21]
+            }
+            else   {
+                return imagesArray[21]
+            }
+        }else if(endingLetter == "w"){
+            var a = Int.random(in:0...1)
+            if a == 0 {
+                return imagesArray[22]
+            }
+            else   {
+                return imagesArray[22]
+            }
+        }else if(endingLetter == "x"){
+            var a = Int.random(in:0...1)
+            if a == 0 {
+                return imagesArray[23]
+            }
+            else   {
+                return imagesArray[23]
+            }
+        }else if(endingLetter == "y"){
+            return imagesArray[24]
+        }else {
+            return imagesArray[25]
+        }
+    }
+    //returns a random number that is used to determine the order of the three choices
+    func randomizeOrder() -> Int{
+        let possibleOrder = [123, 132,213,231,312,321]
+        return possibleOrder[Int.random(in:0...5)]
+    }
+    
+
+    /*
+    // MARK: - Navigation
+
+    // In a storyboard-based application, you will often want to do a little preparation before navigation
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        // Get the new view controller using segue.destination.
+        // Pass the selected object to the new view controller.
+    }
+    */
+
+
+}
+
