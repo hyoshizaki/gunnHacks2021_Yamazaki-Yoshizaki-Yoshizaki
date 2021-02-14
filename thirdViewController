@@ -10,9 +10,19 @@ import UIKit
 class thirdViewController: UIViewController {
   
     
+    @IBOutlet weak var textField: UITextField!
     var counter = 10
     @IBOutlet weak var timer: UILabel!
     @IBAction func enter(_ sender: Any) {
+        if textField.text != ""{
+            performSegue(withIdentifier: "segue", sender: self)
+        }
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        var fourthViewController = segue.destination as! fourthViewController
+        fourthViewController.myString = textField.text!
+            
     }
     
     override func viewDidLoad() {
