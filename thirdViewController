@@ -7,42 +7,112 @@
 
 import UIKit
 
-class thirdViewController: UIViewController {
+class thirdViewController: UIViewController, UITextFieldDelegate {
   
     
+
+    @IBOutlet weak var entrerButton: UIButton!
     @IBOutlet weak var textField: UITextField!
+    @IBOutlet weak var baseWord: UILabel!
     var counter = 10
     @IBOutlet weak var timer: UILabel!
-    @IBAction func enter(_ sender: Any) {
-        if textField.text != ""{
-            performSegue(withIdentifier: "segue", sender: self)
-        }
-    }
+    var usedWords : [String]!
+    @IBOutlet weak var pointLabel: UILabel!
+    var score : Int = 0
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        var fourthViewController = segue.destination as! fourthViewController
-        fourthViewController.myString = textField.text!
-            
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        let randomWordArray = [
+            "appple",
+            "banana",
+            "cat",
+            "disk",
+            "egg nog",
+            "float",
+            "godzilla",
+            "horse",
+            "icicle",
+            "jigsaw",
+            "koala",
+            "link",
+            "monopoly man",
+            "nintendo switch",
+            "omnipotent",
+            "pinch",
+            "queen",
+            "robust",
+            "supper",
+            "tomb",
+            "unstuff",
+            "valid",
+            "widget",
+            "xenon",
+            "yell",
+            "zelda"
+        ]
+        baseWord.text = randomWordArray[Int.random(in:0...25)]
+        usedWords = [baseWord.text!]
+        pointLabel.text = "0"
+        score = 0
         
         Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { (Timer) in
             if self.counter > 0 {
-                self.timer.text =  "\(self.counter) seconds"
+                self.timer.text =  "\(self.counter)"
                 self.counter -= 1
             } else {
-                Timer.invalidate()
-                            }
+                //vc.modalPresentationStyle = .fullScreen
+                //elf.present(vc,animated: true)
+                self.entrerButton.isEnabled = false
+                self.pointLabel.text = "Good job! You got " + String(self.score) + " points!"
+                }
 
         }
+
+        
         // Do any additional setup after loading the view.
     }
+
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
+
+    
+
+    @IBAction func enter(_ sender: Any) {
+        if textField.text != "" {
+            let inputA = textField.text
+            if(meetsConditions(input: inputA!)){ //add conditions
+                baseWord.text = inputA
+                usedWords += [inputA!]
+                textField.text = ""
+                score += inputA!.count
+                pointLabel.text = String(score)
+            }
+        }
+    }
+    func meetsConditions(input : String) -> Bool {
+        if(usedWords.count != 0){
+            for word in usedWords {
+                if word == input{
+                    return false
+                }
+            }
+        }
+        if input[input.startIndex] != baseWord.text![baseWord.text!.index(before: baseWord.text!.endIndex)] {
+            return false
+        }
+        return isRealWord(input1: input)
+    }
+    func isRealWord(input1: String)-> Bool {
+        let checker = UITextChecker()
+        let range = NSRange(location: 0, length: input1.utf16.count)
+        let misspelledRange = checker.rangeOfMisspelledWord(in: input1, range: range, startingAt: 0, wrap: false, language: "en")
+        return misspelledRange.location == NSNotFound
+    }
+    
+    
 
     
     
