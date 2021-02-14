@@ -1,0 +1,43 @@
+//
+//  ViewController.swift
+//  h
+//
+//  Created by Shuji Yoshizaki on 2/12/21.
+//
+
+import UIKit
+import AVFoundation
+
+class ViewController: UIViewController {
+
+    var bgmPlayer = AVAudioPlayer()
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        
+        
+        do{
+            bgmPlayer = try AVAudioPlayer(contentsOf: URL.init(fileURLWithPath:  Bundle.main.path(forResource:"bgm", ofType: "mp3")!))
+            bgmPlayer.prepareToPlay()
+        } catch {
+            print(error)
+        }
+        
+        
+        let yourView = UIView(frame:CGRect(x:-50, y:-50, width:500, height:125))
+        yourView.layer.borderWidth = 5
+        yourView.layer.borderColor = UIColor.green.cgColor
+        view.addSubview(yourView)
+        bgmPlayer.play()
+    }
+    
+    
+}
+
+        
+
+    
+
+
+
+
