@@ -10,15 +10,33 @@ import UIKit
 class fourthViewController: UIViewController {
 
     @IBOutlet weak var label: UILabel!
+    @IBOutlet weak var points: UILabel!
+    
+    
+    var username:String = ""
+
+        @IBOutlet weak var usernameLabel:UILabel?
+
+        
+        
     
     var myString = String()
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        usernameLabel?.text = username
+        
+        
         label.text = myString
+        
+        
+        
+        
+        //present(UIViewController, animated: <#T##Bool#>, completion: nil)
 
         // Do any additional setup after loading the view.
     }
+    
     
 
     /*
@@ -32,4 +50,3 @@ class fourthViewController: UIViewController {
     */
 
 }
-
